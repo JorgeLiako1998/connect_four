@@ -47,6 +47,8 @@ These tips come from 400 games between two trained models (500,000-game model vs
 | `test.py` | Plays the model against `random` and `smart` |
 | `model_vs_model.py` | Plays two models against each other and reports wins and ties |
 | `analyze_games.py` | Explains why models won or lost in `model_vs_model.py` games |
+| `perfect.py`, `c4solver.c` | Exact Connect Four solver (C) and the hybrid player that uses it |
+| `perfect_test.py` | Plays the perfect player against random, smart and the model |
 | `core.py` | Shared code (not run directly) |
 
 ## Setup
@@ -99,15 +101,22 @@ python3 train.py --data data/other.csv --out models/mine.joblib
 ## Play with advice (`game.py`)
 
 ```bash
-python3 game.py            # you are Red (Player 1, moves first)
-python3 game.py --me 2     # you are Yellow (Player 2)
+python3 game.py                 # advice mode: you are Red (Player 1, moves first)
+python3 game.py --me 2          # advice mode: you are Yellow (Player 2)
+python3 game.py --vs-model      # play AGAINST the model
+python3 game.py --vs-model --me 2 --depth 10 --hints
+python3 game.py --perfect       # play against the model with the exact solver
 ```
 
-You enter both your move and your opponent's:
+**Perfect mode (`--perfect`, or press `M` in the game):** the model asks an exact solver (`c4solver.c`, compiled automatically with `clang` on first use, about 270 MB of memory) whether each move wins, draws or loses by force. It plays a proven win when it has one, never plays a proven loss while a draw is available, and resists as long as possible in a lost position. The first few moves are too big to solve quickly, so there it falls back to the learned model plus search, and the panel shows `not solved yet (model + search)`. Connect Four is a first-player win, so the model as Player 1 keeps the win once it is solved. As Player 2 it can only win or draw if you make a mistake. In tests it won all 40 games against `random` and `smart` as both players, and drew as Player 1 and won as Player 2 against the learned model. Run `python3 perfect_test.py` to repeat that.
+
+**Play against the model (`--vs-model`):** you drag your own piece and the model answers by itself after a short pause. Hints are off by default (press `H` to show them). `--depth` sets how many plies ahead the model searches (default 8; higher is stronger but slower), and `--hints` starts with hints on. `U` undoes your move and the model's reply together.
+
+**Advice mode (the default):** you enter both your move and your opponent's:
 - Drag the piece from the top tray and drop it over a column.
 - On your turn, the suggested column gets a green marker and the side panel shows a win bar for each column. Double-click the tray piece to play the suggestion.
 - On the opponent's turn, drag the piece to the column they played.
-- Keys: `U` undo, `N` new game, `S` swap which side you are, `Esc` quit.
+- Keys (both modes): `U` undo, `N` new game, `S` swap which side you are, `M` cycle the mode (advice, you vs model, you vs perfect model), `H` show or hide hints, `Esc` quit.
 
 ## Command-line advice (`advise.py`)
 
