@@ -1,0 +1,4 @@
+building training set from 495000 games...
+11,501,475 training positions, 116,398 validation positions (132s); class counts [5257392  726768 5517315]
+epoch 1: loss 0.7134  validation accuracy 0.633  (110s)
+epoch 2: loss 0.7019  validation accuracy 0.639  (124s)
